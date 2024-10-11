@@ -15,4 +15,7 @@ export default class TorusAsteroid {
 
         this.mesh = new THREE.Mesh(this.geometry, this.material);
     }
+
+    update() {
+    }
 }

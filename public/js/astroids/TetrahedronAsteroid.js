@@ -15,4 +15,7 @@ export default class TetrahedronAsteroid {
 
         this.mesh = new THREE.Mesh(this.geometry, this.material);
     }
+
+    update() {
+    }
 }

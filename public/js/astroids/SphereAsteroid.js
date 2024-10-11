@@ -12,4 +12,7 @@ export default class SphereAsteroid {
 
         this.mesh = new THREE.Mesh(this.geometry, this.material);
     }
+
+    update() {
+    }
 }

@@ -15,4 +15,7 @@ export default class TorusKnotAsteroid {
 
         this.mesh = new THREE.Mesh(this.geometry, this.material);
     }
+
+    update() {
+    }
 }
