@@ -1,13 +1,22 @@
-// Setup Three.js scene, camera, and renderer
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 500 );
-camera.position.z = 3;
-camera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
-scene.add(camera);
+import * as THREE from 'three';
 
-// Check and grab canvas if exists
-const myCanvas = document.getElementById('myCanvas');
-var renderer = new THREE.WebGLRenderer({ canvas: myCanvas, antialias: true });
-renderer.setClearColor(0x333339);
+var scene = new THREE.Scene();
+
+var camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, .1, 3000 );
+camera.position.z = 20;  
+camera.lookAt( new THREE.Vector3(0.0,0.0,0.0));
+scene.add( camera );
+
+var renderer = new THREE.WebGLRenderer({canvas: myCanvas, antialias: true});
+renderer.setClearColor(0x000000);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+
+function animate() {
+
+    requestAnimationFrame( animate );
+    renderer.render( scene, camera );
+};
+animate();
