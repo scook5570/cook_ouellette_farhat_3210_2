@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import SquareAstroid from './astroids/SquareAstroid';
-import CapsuleAstroid from './astroids/CapsuleAstroid';
-import SphereAstroid from './astroids/SphereAstroid';
-import TorusAstroid from './astroids/TorusAstroid';
-import TorusKnotAstroid from './astroids/TorusKnotAstroid';
-import TetrahedronAstroid from './astroids/TetrahedronAstroid';
+import SquareAsteroid from './astroids/SquareAsteroid';
+import CapsuleAsteroid from './astroids/CapsuleAsteroid';
+import SphereAsteroid from './astroids/SphereAsteroid';
+import TorusAsteroid from './astroids/TorusAsteroid';
+import TorusKnotAsteroid from './astroids/TorusKnotAsteroid';
+import TetrahedronAsteroid from './astroids/TetrahedronAsteroid';
 
 var scene = new THREE.Scene();
 
@@ -18,30 +18,30 @@ renderer.setClearColor(0x000000);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-var s = new SquareAstroid();
+var s = new SquareAsteroid();
 scene.add(s.mesh);
 
-var c = new CapsuleAstroid();
+var c = new CapsuleAsteroid();
 scene.add(c.mesh);
 
 c.mesh.translateX(15);
 
-var sp = new SphereAstroid();
+var sp = new SphereAsteroid();
 scene.add(sp.mesh);
 
 sp.mesh.translateX(-15);
 
-var t = new TorusAstroid();
+var t = new TorusAsteroid();
 scene.add(t.mesh);
 
 t.mesh.translateY(-15);
 
-var tk = new TorusKnotAstroid();
+var tk = new TorusKnotAsteroid();
 scene.add(tk.mesh);
 
 tk.mesh.translateY(15);
 
-var tr = new TetrahedronAstroid();
+var tr = new TetrahedronAsteroid();
 scene.add(tr.mesh);
 
 tr.mesh.translateY(15);

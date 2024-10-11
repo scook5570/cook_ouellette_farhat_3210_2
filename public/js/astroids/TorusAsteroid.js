@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export default class TorusAstroid {
+export default class TorusAsteroid {
     constructor() {
         // radius is between 2 and 7
         var r = 2 + (Math.random() * 5);

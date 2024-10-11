@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export default class SquareAstroid {
+export default class SquareAsteroid {
     constructor() {
         // side is between 3 and 10
         var side = 3 + (Math.random() * 7);

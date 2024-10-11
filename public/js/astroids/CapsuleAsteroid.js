@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export default class CapsuleAstroid {
+export default class CapsuleAsteroid {
     constructor() {
         // length is between 3 and 10
         var l = 3 + (Math.random() * 7);

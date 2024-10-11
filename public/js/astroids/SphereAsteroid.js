@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export default class SphereAstroid {    
+export default class SphereAsteroid {    
     constructor() {
         // radius is between 3 and 10
         var r = 3 + (Math.random() * 7);
