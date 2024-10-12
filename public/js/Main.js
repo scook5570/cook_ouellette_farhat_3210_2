@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import ObjectPool from './astroids/ObjectPool';
-import SquareAsteroid from './astroids/SquareAsteroid';
-import CapsuleAsteroid from './astroids/CapsuleAsteroid';
-import SphereAsteroid from './astroids/SphereAsteroid';
-import TorusAsteroid from './astroids/TorusAsteroid';
-import TorusKnotAsteroid from './astroids/TorusKnotAsteroid';
-import TetrahedronAsteroid from './astroids/TetrahedronAsteroid';
+import ObjectPool from './asteroids/ObjectPool';
+import SquareAsteroid from './asteroids/SquareAsteroid';
+import CapsuleAsteroid from './asteroids/CapsuleAsteroid';
+import SphereAsteroid from './asteroids/SphereAsteroid';
+import TorusAsteroid from './asteroids/TorusAsteroid';
+import TorusKnotAsteroid from './asteroids/TorusKnotAsteroid';
+import TetrahedronAsteroid from './asteroids/TetrahedronAsteroid';
 
 
 var scene = new THREE.Scene();
