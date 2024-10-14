@@ -5,14 +5,17 @@ export default class SquareAsteroid {
         // side is between 3 and 10
         var side = 3 + (Math.random() * 7);
         
+        // Creates the geometry of the asteroid
         this.geometry = new THREE.BoxGeometry(side,side,side);
 
+        // Creates a random color for the asteroid
         var color = Math.random() * 0xffffff;
         this.material = new THREE.MeshBasicMaterial({color: color});
 
-
+        // Creates the mesh of the asteroid
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
+        // variables to control the rotation speed
         var rotationSpeed = 0.1;
 
         this.randRotateX = Math.random() * rotationSpeed - 0.05;
@@ -20,6 +23,7 @@ export default class SquareAsteroid {
         this.randRotateZ = Math.random() * rotationSpeed - 0.05;
     }
 
+    // This function updates the asteroid movement through space
     update() {
         this.mesh.rotateX(this.randRotateX);
         this.mesh.rotateY(this.randRotateY);

@@ -5,7 +5,10 @@ import TorusAsteroid from './TorusAsteroid.js';
 import TorusKnotAsteroid from './TorusKnotAsteroid.js';
 import TetrahedronAsteroid from './TetrahedronAsteroid.js';
 
+// ObjectPool class:
+// This class is used to create a pool of objects to allow for object recycling.
 export default class ObjectPool {
+    // The constructor takes in a number n and creates a pool of n objects.
     constructor(n) {
         this.pool = [];
         this.active = [];
@@ -15,6 +18,7 @@ export default class ObjectPool {
         }
     }
 
+    // This function creates a random asteroid object.
     createObject() { 
         var random = Math.random() * 100;
         if (random < 30) {
@@ -37,6 +41,7 @@ export default class ObjectPool {
         }
     }
 
+    // This function gets an object from the pool.
     getObject() {
         if (this.pool.length > 0) {
             this.active.push(this.pool.pop());
@@ -44,6 +49,7 @@ export default class ObjectPool {
         this.active.push(this.createObject());
     }
 
+    // This function returns an object to the pool.
     returnObject(object) {
         this.pool.push(object);
     }
