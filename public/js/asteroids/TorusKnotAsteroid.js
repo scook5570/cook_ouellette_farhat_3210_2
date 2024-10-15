@@ -17,9 +17,12 @@ export default class TorusKnotAsteroid {
 
         // Creates the mesh of the asteroid
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+
+        
     }
 
     // This function updates the asteroid movement through space
     update() {
+
     }
 }

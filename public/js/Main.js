@@ -4,7 +4,7 @@ import ObjectPool from './asteroids/ObjectPool';
 var scene = new THREE.Scene();
 
 var camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, .1, 3000 );
-camera.position.z = 100;  
+camera.position.z = 200;  
 camera.lookAt( new THREE.Vector3(0.0,0.0,0.0));
 scene.add( camera );
 
@@ -57,7 +57,7 @@ function animate() {
 
     for (var i = 0; i < pool.length; i++){
         pool[i].update();
-    }   
+    }
 
     // s.update();
     // c.update();
