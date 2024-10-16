@@ -56,7 +56,7 @@ for(var i = 0; i < pool.length; i++){
 function animate() {
 
     for (var i = 0; i < pool.length; i++){
-        pool[i].update();
+        pool[i].update(Date.now());
     }
 
     // s.update();

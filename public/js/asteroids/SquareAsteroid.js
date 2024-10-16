@@ -32,7 +32,7 @@ export default class SquareAsteroid {
     }
 
     // This function updates the asteroid movement through space
-    update() {
+    update(t) {
         this.mesh.position.x += this.xSpeed;
 
         this.mesh.rotateX(this.randRotateX);

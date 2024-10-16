@@ -31,7 +31,7 @@ export default class TorusAsteroid {
     }
 
     // This function updates the asteroid movement through space
-    update() {
+    update(t) {
         if (this.XYZ == 0) {
             this.mesh.position.x += Math.sin(this.xSpeed/0.75) * Math.PI / 10;
             this.mesh.position.y += this.negative * Math.PI / 30;

@@ -36,7 +36,7 @@ export default class CapsuleAsteroid {
     }
 
     // This function updates the asteroid's scale and rotation
-    update() {
+    update(t) {
         this.mesh.scale.x = Math.sin(this.scaleFactor) * 0.25 + 1;
         this.mesh.scale.y = Math.sin(this.scaleFactor) * 0.25 + 1;
         this.mesh.scale.z = Math.sin(this.scaleFactor) * 0.25 + 1;
