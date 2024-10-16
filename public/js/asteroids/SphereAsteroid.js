@@ -26,6 +26,8 @@ export default class SphereAsteroid {
         } else if (Math.abs(this.speed) < 0.05 && this.speed < 0) {
             this.xSpeed -= 0.1;
         }
+
+        this.scaleSpeed = Math.random() * 100 + 80;
     }
 
     // This funciton controls the movement on the astroid
@@ -34,7 +36,7 @@ export default class SphereAsteroid {
         this.mesh.scale.y = Math.sin(this.scaleFactor) * 0.25 + 1;
         this.mesh.scale.z = Math.sin(this.scaleFactor) * 0.25 + 1;
 
-        this.scaleFactor += Math.PI / 180;
+        this.scaleFactor += Math.PI / this.scaleSpeed;
         if (this.scaleFactor > 2 * Math.PI) {
             this.scaleFactor = 0;
         }
