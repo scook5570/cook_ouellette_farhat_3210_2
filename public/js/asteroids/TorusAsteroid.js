@@ -24,7 +24,6 @@ export default class TorusAsteroid {
         if (this.negative == 0) {
             this.negative = 1;
         }
-        console.log(this.XYZ);
         this.randRotate = Math.PI / (Math.random() * 80 + 100) * this.negative;
 
         // Allows the torus to move in the x/y direction by a sin wave

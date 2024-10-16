@@ -6,7 +6,7 @@ export default class TetrahedronAsteroid {
         var r = 2 + (Math.random() * 5);
 
         // detail between 1 and 10
-        var d = Math.floor((Math.random() * 10));
+        var d = Math.floor((Math.random() * 8));
 
         // Creates the geometry of the asteroid
         this.geometry = new THREE.TetrahedronGeometry(r, d);
@@ -21,5 +21,6 @@ export default class TetrahedronAsteroid {
 
     // This function updates the asteroid movement through space
     update() {
+        
     }
 }

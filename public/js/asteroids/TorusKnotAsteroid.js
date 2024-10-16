@@ -23,6 +23,6 @@ export default class TorusKnotAsteroid {
 
     // This function updates the asteroid movement through space
     update() {
-
+        
     }
 }
