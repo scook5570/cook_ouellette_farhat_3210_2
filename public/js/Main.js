@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import ObjectPool from './asteroids/ObjectPool';
+import ObjectPool from './ObjectPool';
 
 var scene = new THREE.Scene();
 

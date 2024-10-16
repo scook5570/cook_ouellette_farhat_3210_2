@@ -1,9 +1,9 @@
-import SquareAsteroid from './SquareAsteroid.js';
-import CapsuleAsteroid from './CapsuleAsteroid.js';
-import SphereAsteroid from './SphereAsteroid.js';
-import TorusAsteroid from './TorusAsteroid.js';
-import TorusKnotAsteroid from './TorusKnotAsteroid.js';
-import TetrahedronAsteroid from './TetrahedronAsteroid.js';
+import SquareAsteroid from './asteroids/SquareAsteroid.js';
+import CapsuleAsteroid from './asteroids/CapsuleAsteroid.js';
+import SphereAsteroid from './asteroids/SphereAsteroid.js';
+import TorusAsteroid from './asteroids/TorusAsteroid.js';
+import TorusKnotAsteroid from './asteroids/TorusKnotAsteroid.js';
+import TetrahedronAsteroid from './asteroids/TetrahedronAsteroid.js';
 
 // ObjectPool class:
 // This class is used to create a pool of objects to allow for object recycling.
