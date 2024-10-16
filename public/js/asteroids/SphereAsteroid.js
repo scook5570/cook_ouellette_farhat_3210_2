@@ -17,6 +17,7 @@ export default class SphereAsteroid {
 
         // variables to control the scaling of the asteroid
         this.scaleFactor = 0;
+        this.scaleSpeed = Math.random() * 100 + 80;
 
         // variables to control the asteroid speed
         this.XYZ = Math.floor(Math.random() * 3);
@@ -26,8 +27,6 @@ export default class SphereAsteroid {
         } else if (Math.abs(this.speed) < 0.05 && this.speed < 0) {
             this.xSpeed -= 0.1;
         }
-
-        this.scaleSpeed = Math.random() * 100 + 80;
     }
 
     // This funciton controls the movement on the astroid
