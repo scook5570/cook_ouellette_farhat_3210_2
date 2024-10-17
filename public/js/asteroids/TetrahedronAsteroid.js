@@ -16,20 +16,22 @@ export default class TetrahedronAsteroid {
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
         // change the detail of the tetrahedron asteroid after creation
-        this.time = Date.now();
+        this.time = 0;
     }
 
     // This function updates the asteroid movement through space
     update(t) {
-        if (t - this.time > 1000) {
+        if (this.time > 1) {
             
             var d = Math.floor((Math.random() * 5));
             this.mesh.geometry.dispose();
             this.geometry = new THREE.TetrahedronGeometry(this.r, d);
             this.mesh.geometry = this.geometry;
             
-            this.time = Date.now();
+            this.time = 0;
             
         }
+
+        this.time += t;
     }
 }

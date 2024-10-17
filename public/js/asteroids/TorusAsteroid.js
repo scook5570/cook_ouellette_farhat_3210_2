@@ -20,10 +20,14 @@ export default class TorusAsteroid {
 
         // Allows the torus to rotate around the z axis
         this.XYZ = Math.floor(Math.random() * 3);
-        this.negative = Math.floor(Math.random() * 2 - 1);
-        if (this.negative == 0) {
+        this.temp = Math.floor(Math.random());
+        this.negative = 0
+        if (this.temp == 1) {
             this.negative = 1;
+        } else {
+            this.negative = -1;
         }
+
         this.randRotate = Math.PI / (Math.random() * 80 + 100) * this.negative;
 
         // Allows the torus to move in the x/y direction by a sin wave
