@@ -18,9 +18,9 @@ export default class CapsuleAsteroid {
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
 
-        var temp = Math.floor(Math.random());
+        var temp = Math.random();
         this.random = 0;
-        if (temp == 1) {
+        if (this.temp > 0.5) {
             this.negative = 1;
         } else {
             this.negative = -1;

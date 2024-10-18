@@ -21,9 +21,9 @@ export default class SphereAsteroid {
 
         // variables to control the asteroid speed
         this.XYZ = Math.floor(Math.random() * 3);
-        this.temp = Math.floor(Math.random());
+        this.temp = Math.random();
         this.negative = 0
-        if (this.temp == 1) {
+        if (this.temp > 0.5) {
             this.negative = 1;
         } else {
             this.negative = -1;
