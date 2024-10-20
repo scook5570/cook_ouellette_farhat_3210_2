@@ -24,6 +24,7 @@ export default class SquareAsteroid {
 
         // variables to control the asteroid speed
         var temp = Math.floor(Math.random());
+        this.negative = 0;
         this.random = 0;
         if (this.temp > 0.5) {
             this.negative = 1;

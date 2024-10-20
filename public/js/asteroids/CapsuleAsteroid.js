@@ -19,6 +19,7 @@ export default class CapsuleAsteroid {
 
 
         var temp = Math.random();
+        this.negative = 0;
         this.random = 0;
         if (this.temp > 0.5) {
             this.negative = 1;
