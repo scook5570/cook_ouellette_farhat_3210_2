@@ -13,35 +13,6 @@ renderer.setClearColor(0x000000);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-// var s = new SquareAsteroid();
-// scene.add(s.mesh);
-
-// var c = new CapsuleAsteroid();
-// scene.add(c.mesh);
-
-// c.mesh.translateX(15);
-
-// var sp = new SphereAsteroid();
-// scene.add(sp.mesh);
-
-// sp.mesh.translateX(-15);
-
-// var t = new TorusAsteroid();
-// scene.add(t.mesh);
-
-// t.mesh.translateY(-15);
-
-// var tk = new TorusKnotAsteroid();
-// scene.add(tk.mesh);
-
-// tk.mesh.translateY(15);
-
-// var tr = new TetrahedronAsteroid();
-// scene.add(tr.mesh);
-
-// tr.mesh.translateY(15);
-// tr.mesh.translateX(15);
-
 var pool = new ObjectPool(10).pool;
 console.log(pool);
 
@@ -53,10 +24,15 @@ for(var i = 0; i < pool.length; i++){
     a.mesh.translateZ(Math.random() * 50 - 25);
 }
 
+var clock = new THREE.Clock();
+var delta = 0;
+
 function animate() {
 
+    delta = clock.getDelta();
+
     for (var i = 0; i < pool.length; i++){
-        pool[i].update(Date.now());
+        pool[i].update(delta);
     }
 
     // s.update();

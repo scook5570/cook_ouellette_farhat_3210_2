@@ -16,27 +16,30 @@ export default class SquareAsteroid {
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
         // variables to control the rotation speed
-        var rotationSpeed = 0.1;
+        var rotationSpeed = 2;
 
-        this.randRotateX = Math.random() * rotationSpeed - 0.05;
-        this.randRotateY = Math.random() * rotationSpeed - 0.05;
-        this.randRotateZ = Math.random() * rotationSpeed - 0.05;
+        this.randRotateX = Math.random() * rotationSpeed + 1;
+        this.randRotateY = Math.random() * rotationSpeed + 1;
+        this.randRotateZ = Math.random() * rotationSpeed + 1;
 
         // variables to control the asteroid speed
-        this.xSpeed = Math.random() * 0.2 - 0.1;
-        if (Math.abs(this.xSpeed) < 0.05 && this.xSpeed > 0) {
-            this.xSpeed += 0.1;
-        } else if (Math.abs(this.xSpeed) < 0.05 && this.xSpeed < 0) {
-            this.xSpeed -= 0.1;
+        var temp = Math.floor(Math.random());
+        this.negative = 0;
+        this.random = 0;
+        if (this.temp > 0.5) {
+            this.negative = 1;
+        } else {
+            this.negative = -1;
         }
+        this.xSpeed = this.negative * (Math.random() * 4 + 2);
     }
 
     // This function updates the asteroid movement through space
     update(t) {
-        this.mesh.position.x += this.xSpeed;
+        this.mesh.position.x += this.xSpeed * t;
 
-        this.mesh.rotateX(this.randRotateX);
-        this.mesh.rotateY(this.randRotateY);
-        this.mesh.rotateZ(this.randRotateZ);
+        this.mesh.rotateX(this.randRotateX * t);
+        this.mesh.rotateY(this.randRotateY * t);
+        this.mesh.rotateZ(this.randRotateZ * t);
     }
 }
