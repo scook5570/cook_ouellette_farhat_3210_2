@@ -19,41 +19,41 @@ export default class TorusAsteroid {
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
         // Allows the torus to rotate around the z axis
-        this.XYZ = Math.floor(Math.random() * 3);
-        this.negative = Math.floor(Math.random() * 2 - 1);
-        if (this.negative == 0) {
+        this.XZ = Math.floor(Math.random());
+        this.temp = Math.random();
+        this.negative = 0
+        if (this.temp > 0.5) {
             this.negative = 1;
+        } else {
+            this.negative = -1;
         }
-        this.randRotate = Math.PI / (Math.random() * 80 + 100) * this.negative;
+
+        this.randXRotate = Math.PI / (Math.random() * 2 + 1) * this.negative;
+        this.randYRotate = Math.PI / (Math.random() * 2 + 1) * this.negative;
+        this.randZRotate = Math.PI / (Math.random() * 2 + 1) * this.negative;
 
         // Allows the torus to move in the x/y direction by a sin wave
-        this.xSpeed = 0;
+        this.sinSpeed = 0;
+        this.speed = Math.random() * (2 * Math.PI) + Math.PI;
     }
 
     // This function updates the asteroid movement through space
     update(t) {
-        if (this.XYZ == 0) {
-            this.mesh.position.x += Math.sin(this.xSpeed/0.75) * Math.PI / 10;
-            this.mesh.position.y += this.negative * Math.PI / 30;
-        } else if (this.XYZ == 1) {
-            this.mesh.position.y += Math.sin(this.xSpeed/0.75) * Math.PI / 10;
-            this.mesh.position.x += this.negative * Math.PI / 30;
-        } else {
-            this.mesh.position.x += Math.sin(this.xSpeed/0.75) * Math.PI / 10;
-            this.mesh.position.z += this.negative * Math.PI / 30;
-        }
-    
+        this.sinSpeed += (Math.PI / 2) * t;
 
-        this.xSpeed += (Math.PI / 360);
-
-        if (this.XYZ == 0) {
-            this.mesh.rotateX(this.randRotate);
-        } else if (this.XYZ == 1) {
-            this.mesh.rotateY(this.randRotate);
+        this.mesh.position.y = Math.sin(this.sinSpeed) * 10;
+        if (this.XZ == 0) {
+            this.mesh.position.x += this.speed * t * this.negative;
         } else {
-            this.mesh.rotateX(this.randRotate);
-            this.mesh.rotateY(this.randRotate);
-            this.mesh.rotateZ(this.randRotate);
+            this.mesh.position.y += this.speed * t * this.negative;
         }
+
+        if (this.sinSpeed > 2 * Math.PI) {
+            this.sinSpeed = 0;
+        }
+
+        this.mesh.rotateX(this.randXRotate * t);
+        this.mesh.rotateY(this.randYRotate * t);
+        this.mesh.rotateZ(this.randZRotate * t);
     }
 }

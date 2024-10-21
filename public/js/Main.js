@@ -84,9 +84,15 @@ function enablePointerLock() {
 
 enablePointerLock();
 
+var clock = new THREE.Clock();
+var delta = 0;
+
 function animate() {
+  
+  delta = clock.getDelta();
+  
   for (var i = 0; i < pool.length; i++) {
-    pool[i].update(Date.now());
+    pool[i].update(delta);
   }
 
   if (controls.isLocked) {
