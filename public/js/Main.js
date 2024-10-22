@@ -31,7 +31,7 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Directional
 directionalLight.position.set(10000, 10000, 10000); // Position way off in the distance
 scene.add(directionalLight);
 
-// Lighting for the camper 
+// Lighting for the camper
 const cabinLight = new THREE.PointLight(0xffffff, 10);
 cabinLight.position.set(1, 1, -1);
 camera.add(cabinLight);
@@ -140,7 +140,8 @@ function checkCollisions() {
 }
 
 let hitCounter = 0;
-let coolDown = false
+let coolDown = false;
+let endGameCounter = 0; // Prevents modal from resetting as impacts happen after death
 
 function handleCollision() {
   if (coolDown) {
@@ -148,7 +149,7 @@ function handleCollision() {
   }
 
   hitCounter++;
-  
+
   const originalMoveSpeed = 0.5;
   moveSpeed = -Math.abs(moveSpeed); // Reverse the moveSpeed
 
@@ -158,32 +159,97 @@ function handleCollision() {
     coolDown = false;
   }, 500);
 
-  console.log("Collision detected: Reversing movement for 1 second");
-
-  if (hitCounter >= 3) {
-    endGame();  // Call the endGame function when 3 hits are reached
+  if (hitCounter >= 3 && endGameCounter < 1) {
+    endGame(); // Call the endGame function when 3 hits are reached
+    endGameCounter++;
   }
 }
 
-function endGame() {
-  // Hide the game canvas and show the game-over screen
-  document.getElementById("myCanvas").style.display = "none";
-  document.getElementById("game-over-screen").style.display = "block";
-  
-  // Lock the controls if needed
-  controls.unlock();
+// Array to hold the file paths of the GIFs
+const gifArray = [
+  "gifs/gif1.gif",
+  "gifs/gif2.gif",
+  "gifs/gif3.gif",
+  "gifs/gif4.gif",
+  "gifs/gif5.gif",
+  "gifs/gif6.gif",
+  "gifs/gif7.gif",
+  "gifs/gif8.gif",
+];
+
+// Different quotes for every end game!
+const quotesArray = [
+  "Oh, no. Not again.",
+  "Now you are going to die! BAM!",
+  "No, no, no. Go past this. Pass this part. In fact, never play this again.",
+  "Out of order? Even in the future nothing works!",
+  "I've lost the bleeps, I've lost the sweeps, and I've lost the creeps.",
+  "You listen. On this ship, you're to refer to me as 'idiot', not 'you captain'. I mean, you know what I mean.",
+  "So, Lone Starr, now you see that evil will always triumph because good is dumb.",
+  "Say goodbye to your two best friends, and I don't mean your pals in the Winnebago.",
+  "I must have pressed the wrong button.",
+  "I got no more left. Oh, waiter... cheque please.",
+  "This ship will self-destruct in twenty seconds. This is your last chance to push the cancellation button.",
+  "I hate it when I get my Schwartz twisted.",
+  "Well, boys, it's a very lovely ship. I think you should go down with it.",
+  "Ooh, I *hate* these movies!",
+  "You are *ugly* when you're angry.",
+  "Abandon ship! Abandon ship! Women and mawgs first!",
+  "I can't believe you fell for the oldest trick in the book! What a goof!",
+  "Oh, look, you fell for that too! I can't believe it, man!",
+  "Thank you for pressing the self destruct button.",
+  "It's either the 4th of July, or someone's trying to kill us!",
+  "You are now our prisoner, and you will be held hostage until such time as all of the air is transferred from your planet to ours.",
+  "If you do not give me the combination to the air shield, Dr. Schlotkin will give your daughter back... her old nose!",
+  "On a sadder note, Pizza the Hutt, famed half man, half pizza, was found dead earlier today in the back seat of his stretched limo.",
+  "All personnel proceed to escape pods. Close down the circus. Evacuate the zoo. The self-destruct mechanism has been activated. Abandon ship.",
+];
+
+// Function to get a random quote from the array
+function getRandomQuote() {
+  const randomIndex = Math.floor(Math.random() * quotesArray.length);
+  return quotesArray[randomIndex];
 }
 
-document.getElementById("restart-button").addEventListener("click", function() {
-  restartGame();
-});
+// Function to get a random GIF from the array
+function getRandomGif() {
+  const randomIndex = Math.floor(Math.random() * gifArray.length);
+  return gifArray[randomIndex];
+}
 
+function endGame() {
+  // Unlock controls to allow mouse movement
+  controls.unlock();
+
+  // Hide the game canvas and show the game-over screen
+  document.getElementById("myCanvas").style.display = "flex";
+  document.getElementById("game-over-screen").style.display = "flex";
+
+  // Set a random quote in the paragraph
+  const randomQuote = getRandomQuote();
+  document.getElementById("random-quote").textContent = randomQuote;
+
+  // Set a random GIF on the death screen
+  const randomGif = getRandomGif();
+  document.getElementById("death-gif").src = randomGif;
+}
+
+// Reload window
 function restartGame() {
   window.location.reload();
 }
 
+// Check for button click and reload
+document
+  .getElementById("restart-button")
+  .addEventListener("click", function () {
+    restartGame();
+  });
+
 function animate() {
+  // Clear renderer for multiple view ports (auto clear disabled)
   renderer.clear();
+  
   delta = clock.getDelta();
 
   for (var i = 0; i < pool.length; i++) {

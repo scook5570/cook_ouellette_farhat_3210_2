@@ -1,0 +1,62 @@
+#game-over-screen {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.game-over-content {
+  background-color: #222;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.8);
+  max-width: 600px;
+  width: 90%;
+}
+
+.game-over-content h1 {
+  color: #ff4444;
+  font-size: 3rem;
+  margin-bottom: 20px;
+  font-family: "Arial", sans-serif;
+}
+
+.game-over-quote {
+    color: #ccc;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-family: "Arial", sans-serif;
+  }
+
+.death-gif {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.restart-button {
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.restart-button:hover {
+  background-color: #ff7777;
+}
+
+.restart-button:active {
+  background-color: #cc3333;
+}
