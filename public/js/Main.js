@@ -21,9 +21,10 @@ var renderer = new THREE.WebGLRenderer({ canvas: myCanvas, antialias: true });
 renderer.setClearColor(0x000000);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.autoClear = false;
 
 // Add basic lighting - Change later I just wanted to see the model
-const ambientLight = new THREE.AmbientLight(0xffffff, 1); 
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Directional light to simulate sunlight
@@ -33,7 +34,7 @@ scene.add(directionalLight);
 var pool = new ObjectPool(10).pool;
 console.log(pool);
 
-const moveSpeed = 0.5;
+let moveSpeed = 0.5;
 
 for (var i = 0; i < pool.length; i++) {
   var a = pool[i];
@@ -41,6 +42,10 @@ for (var i = 0; i < pool.length; i++) {
   a.mesh.translateX(Math.random() * 50 - 25);
   a.mesh.translateY(Math.random() * 50 - 25);
   a.mesh.translateZ(Math.random() * 50 - 25);
+
+  // Create a bounding box for each object
+  a.mesh.geometry.computeBoundingBox();
+  a.boundingBox = new THREE.Box3().setFromObject(a.mesh); // Create the bounding box
 }
 
 // Load the cockpit model
@@ -51,8 +56,8 @@ loader.load(
     const cockpit = gltf.scene;
 
     // Adjust scale and position the cockpit
-    cockpit.scale.set(0.5, 0.5, 0.5); 
-    cockpit.position.set(0.68, -1.4, -0.5); 
+    cockpit.scale.set(0.5, 0.5, 0.5);
+    cockpit.position.set(0.68, -1.4, -0.5);
 
     camera.add(cockpit); // Binds it to the camera rather than world
     cockpit.rotation.set(0, Math.PI, 0); // Flip on y axis
@@ -87,25 +92,73 @@ enablePointerLock();
 var clock = new THREE.Clock();
 var delta = 0;
 
+// Virtual bounding box for camera
+const cameraBoundingBox = new THREE.Box3(
+  new THREE.Vector3(),
+  new THREE.Vector3()
+);
+const cameraSize = 2; // Adjust size to fit the camera bounds
+
+function updateCameraBoundingBox() {
+  cameraBoundingBox.setFromCenterAndSize(
+    camera.position,
+    new THREE.Vector3(cameraSize, cameraSize, cameraSize)
+  );
+}
+
+function updateBoundingBoxes() {
+  for (var i = 0; i < pool.length; i++) {
+    pool[i].boundingBox.setFromObject(pool[i].mesh);
+  }
+}
+
+function checkCollisions() {
+  updateBoundingBoxes();
+  updateCameraBoundingBox();
+
+  for (var i = 0; i < pool.length; i++) {
+    var objectBoundingBox = pool[i].boundingBox;
+
+    if (cameraBoundingBox.intersectsBox(objectBoundingBox)) {
+      console.log("Collision detected with object " + i);
+      handleCollision();
+    }
+  }
+}
+
+function handleCollision() {
+  const originalMoveSpeed = 0.5; // Setting as num to prevent perma reverse issue
+  moveSpeed = -Math.abs(moveSpeed); // Reverse the moveSpeed (make it negative)
+
+  // Reverse movement for 1 second, then restore original speed
+  setTimeout(() => {
+    moveSpeed = originalMoveSpeed; // Restore the original moveSpeed after 1 second
+  }, 500); // 1000 milliseconds = 1 second
+
+  console.log("Collision detected: Reversing movement for 1 second");
+}
+
 function animate() {
-  
+  renderer.clear();
   delta = clock.getDelta();
-  
+
   for (var i = 0; i < pool.length; i++) {
     pool[i].update(delta);
   }
 
   if (controls.isLocked) {
-    // Get the direction the camera is facing
     const direction = new THREE.Vector3();
-    camera.getWorldDirection(direction); // This returns a normalized vector pointing forward
-
-    // Move the camera in the direction it's facing
+    camera.getWorldDirection(direction);
     camera.position.addScaledVector(direction, moveSpeed);
   }
 
-  requestAnimationFrame(animate);
+  checkCollisions(); // Check for collisions after moving the camera
+
+  // Render the main camera view (full screen)
+  renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
   renderer.render(scene, camera);
+
+  requestAnimationFrame(animate);
 }
 
 // Resize handler to ensure correct aspect ratio
