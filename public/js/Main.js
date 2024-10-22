@@ -31,6 +31,19 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Directional
 directionalLight.position.set(10000, 10000, 10000); // Position way off in the distance
 scene.add(directionalLight);
 
+// Lighting for the camper 
+const cabinLight = new THREE.PointLight(0xffffff, 10);
+cabinLight.position.set(1, 1, -1);
+camera.add(cabinLight);
+
+const leftHeadLight = new THREE.PointLight(0xffffff, 100);
+leftHeadLight.position.set(-1, -2, -6);
+camera.add(leftHeadLight);
+
+const rightHeadLight = new THREE.PointLight(0xffffff, 100);
+rightHeadLight.position.set(6, -2, -6);
+camera.add(rightHeadLight);
+
 var pool = new ObjectPool(10).pool;
 console.log(pool);
 
@@ -57,7 +70,7 @@ loader.load(
 
     // Adjust scale and position the cockpit
     cockpit.scale.set(0.5, 0.5, 0.5);
-    cockpit.position.set(0.68, -1.4, -0.5);
+    cockpit.position.set(0.68, -1.4, -0.35);
 
     camera.add(cockpit); // Binds it to the camera rather than world
     cockpit.rotation.set(0, Math.PI, 0); // Flip on y axis
@@ -126,16 +139,47 @@ function checkCollisions() {
   }
 }
 
-function handleCollision() {
-  const originalMoveSpeed = 0.5; // Setting as num to prevent perma reverse issue
-  moveSpeed = -Math.abs(moveSpeed); // Reverse the moveSpeed (make it negative)
+let hitCounter = 0;
+let coolDown = false
 
-  // Reverse movement for 1 second, then restore original speed
+function handleCollision() {
+  if (coolDown) {
+    return;
+  }
+
+  hitCounter++;
+  
+  const originalMoveSpeed = 0.5;
+  moveSpeed = -Math.abs(moveSpeed); // Reverse the moveSpeed
+
+  coolDown = true;
   setTimeout(() => {
-    moveSpeed = originalMoveSpeed; // Restore the original moveSpeed after 1 second
-  }, 500); // 1000 milliseconds = 1 second
+    moveSpeed = originalMoveSpeed;
+    coolDown = false;
+  }, 500);
 
   console.log("Collision detected: Reversing movement for 1 second");
+
+  if (hitCounter >= 3) {
+    endGame();  // Call the endGame function when 3 hits are reached
+  }
+}
+
+function endGame() {
+  // Hide the game canvas and show the game-over screen
+  document.getElementById("myCanvas").style.display = "none";
+  document.getElementById("game-over-screen").style.display = "block";
+  
+  // Lock the controls if needed
+  controls.unlock();
+}
+
+document.getElementById("restart-button").addEventListener("click", function() {
+  restartGame();
+});
+
+function restartGame() {
+  window.location.reload();
 }
 
 function animate() {
