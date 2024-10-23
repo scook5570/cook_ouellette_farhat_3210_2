@@ -2,11 +2,14 @@ import * as THREE from "three";
 import ObjectPool from "./ObjectPool";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 
 var scene = new THREE.Scene();
 
 var camera = new THREE.PerspectiveCamera(
-  65,
+  80,
   window.innerWidth / window.innerHeight,
   0.1,
   3000
@@ -14,14 +17,46 @@ var camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 0, 200); // Move camera slightly in front of where the cockpit will be
 scene.add(camera);
 
+var rearCamera = new THREE.PerspectiveCamera(
+  65,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  3000
+);
+rearCamera.position.set(0, 0, 5); // Position it behind the main camera
+rearCamera.rotation.set(0, Math.PI, 0);
+camera.add(rearCamera);
+
 // Add PointerLockControls
 const controls = new PointerLockControls(camera, document.body); // Controls camera using Pointer Lock
 
-var renderer = new THREE.WebGLRenderer({ canvas: myCanvas, antialias: true });
+var renderer = new THREE.WebGLRenderer({
+  canvas: myCanvas,
+  antialias: true,
+  depth: true,
+});
 renderer.setClearColor(0x000000);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.autoClear = false;
+
+// Set up Effect Composer
+const composer = new EffectComposer(renderer);
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+// Set up Unreal Bloom Pass
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  1.5,
+  0.4,
+  0.85
+);
+composer.addPass(bloomPass);
+
+bloomPass.threshold = 0.8; // Threshold for brightness
+bloomPass.strength = 0.2; // Strength of the bloom effect
+bloomPass.radius = 1; // Radius of the bloom effect
 
 // Add basic lighting - Change later I just wanted to see the model
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -72,8 +107,10 @@ loader.load(
     cockpit.scale.set(0.5, 0.5, 0.5);
     cockpit.position.set(0.68, -1.4, -0.35);
 
-    camera.add(cockpit); // Binds it to the camera rather than world
-    cockpit.rotation.set(0, Math.PI, 0); // Flip on y axis
+    cockpit.rotation.set(0, Math.PI, 0); // Flip on y-axis
+
+    // Attach cockpit to main camera
+    camera.add(cockpit);
   },
   undefined,
   function (error) {
@@ -247,11 +284,13 @@ document
   });
 
 function animate() {
-  // Clear renderer for multiple view ports (auto clear disabled)
+  // Clear renderer for multiple viewports (since autoClear is false)
   renderer.clear();
-  
+  requestAnimationFrame(animate);
+
   delta = clock.getDelta();
 
+  // Update all objects in the scene
   for (var i = 0; i < pool.length; i++) {
     pool[i].update(delta);
   }
@@ -264,17 +303,20 @@ function animate() {
 
   checkCollisions(); // Check for collisions after moving the camera
 
-  // Render the main camera view (full screen)
   renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
-  renderer.render(scene, camera);
+  renderer.render(scene, camera); // Render the main scene first
 
-  requestAnimationFrame(animate);
+  renderer.setViewport(10, 10, 50, 50); // Position and size of the second view (adjust as needed)
+  renderer.render(scene, rearCamera); // Render the rear camera on top
 }
 
-// Resize handler to ensure correct aspect ratio
 window.addEventListener("resize", function () {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+
+  rearCamera.aspect = window.innerWidth / window.innerHeight;
+  rearCamera.updateProjectionMatrix();
+
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
