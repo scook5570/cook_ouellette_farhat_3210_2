@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import ObjectPool from "./ObjectPool";
-import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
+import { FirstPersonControls } from "three/examples/jsm/controls/FirstPersonControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
@@ -17,6 +17,13 @@ var camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 0, 200); // Move camera slightly in front of where the cockpit will be
 scene.add(camera);
 
+// DO NOT REMOVE - KEEPS PROJECTION MATRIX STATIC ACROSS ALL SCREENS
+// Ensures rear view ports always line up with the model
+camera.aspect = 1263 / 598;
+camera.updateProjectionMatrix();
+
+camera.aspect = window.innerWidth / window.innerHeight;
+
 var rearCamera = new THREE.PerspectiveCamera(
   65,
   window.innerWidth / window.innerHeight,
@@ -27,18 +34,42 @@ rearCamera.position.set(0, 0, 5); // Position it behind the main camera
 rearCamera.rotation.set(0, Math.PI, 0);
 camera.add(rearCamera);
 
-// Add PointerLockControls
-const controls = new PointerLockControls(camera, document.body); // Controls camera using Pointer Lock
+var leftCamera = new THREE.PerspectiveCamera(
+  100,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  3000
+);
+leftCamera.position.set(0, 0, 2); // Slightly behind main camera
+leftCamera.rotation.set(0, Math.PI, 0);
+camera.add(leftCamera); // Rear camera is bound to the main camera
+
+// Mirror the rear cameras by scaling the X-axis of its projection matrix
+rearCamera.projectionMatrix.elements[0] *= -1; // Flip the X-axis for the mirror effect
+leftCamera.projectionMatrix.elements[0] *= -1;
+
+// Virtual bounding box for camera
+const cameraBoundingBox = new THREE.Box3(
+  new THREE.Vector3(),
+  new THREE.Vector3()
+);
+const cameraSize = 2; // Adjust size to fit the camera bounds
 
 var renderer = new THREE.WebGLRenderer({
-  canvas: myCanvas,
+  canvas: canvas,
   antialias: true,
-  depth: true,
 });
 renderer.setClearColor(0x000000);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.autoClear = false;
+document.body.appendChild(renderer.domElement);
+
+// Set up movement controls
+let moveSpeed = 20;
+var controls = new FirstPersonControls(camera, renderer.domElement);
+controls.lookSpeed = 0.1; // Adjust look speed
+controls.movementSpeed = moveSpeed; // Movement speed for controls
+controls.autoForward = true;
 
 // Set up Effect Composer
 const composer = new EffectComposer(renderer);
@@ -48,15 +79,11 @@ composer.addPass(renderPass);
 // Set up Unreal Bloom Pass
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  1.5,
-  0.4,
-  0.85
+  0.2, // Strength 
+  1, // Radius
+  0.8 // Threshold
 );
 composer.addPass(bloomPass);
-
-bloomPass.threshold = 0.8; // Threshold for brightness
-bloomPass.strength = 0.2; // Strength of the bloom effect
-bloomPass.radius = 1; // Radius of the bloom effect
 
 // Add basic lighting - Change later I just wanted to see the model
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -79,10 +106,9 @@ const rightHeadLight = new THREE.PointLight(0xffffff, 100);
 rightHeadLight.position.set(6, -2, -6);
 camera.add(rightHeadLight);
 
+// Create object pool
 var pool = new ObjectPool(10).pool;
 console.log(pool);
-
-let moveSpeed = 0.5;
 
 for (var i = 0; i < pool.length; i++) {
   var a = pool[i];
@@ -96,59 +122,30 @@ for (var i = 0; i < pool.length; i++) {
   a.boundingBox = new THREE.Box3().setFromObject(a.mesh); // Create the bounding box
 }
 
-// Load the cockpit model
+// Load GLB model
 const loader = new GLTFLoader();
 loader.load(
-  "eagle5.glb",
+  "./eagle5.glb",
   function (gltf) {
     const cockpit = gltf.scene;
-
-    // Adjust scale and position the cockpit
-    cockpit.scale.set(0.5, 0.5, 0.5);
-    cockpit.position.set(0.68, -1.4, -0.35);
-
+    cockpit.scale.set(0.5, 0.5, 0.5); // Scale smaller
+    cockpit.position.set(0.68, -1.4, -0.22); // Set model position
     cockpit.rotation.set(0, Math.PI, 0); // Flip on y-axis
-
-    // Attach cockpit to main camera
     camera.add(cockpit);
   },
-  undefined,
   function (error) {
-    console.error(error);
+    console.error("An error happened while loading the model:", error);
   }
 );
-
-// Pointer Lock API to capture mouse input
-function enablePointerLock() {
-  const canvas = renderer.domElement;
-
-  // Request pointer lock on click
-  canvas.addEventListener("click", () => {
-    controls.lock(); // Lock the pointer and enable controls
-  });
-
-  // Pointer lock change event listeners
-  controls.addEventListener("lock", () => {
-    console.log("Pointer locked");
-  });
-
-  controls.addEventListener("unlock", () => {
-    console.log("Pointer unlocked");
-  });
-}
-
-enablePointerLock();
 
 var clock = new THREE.Clock();
 var delta = 0;
 
-// Virtual bounding box for camera
-const cameraBoundingBox = new THREE.Box3(
-  new THREE.Vector3(),
-  new THREE.Vector3()
-);
-const cameraSize = 2; // Adjust size to fit the camera bounds
+let hitCounter = 0;
+let coolDown = false;
+let endGameCounter = 0; // Prevents modal from resetting as impacts happen after death
 
+// Function to update camera bounding box
 function updateCameraBoundingBox() {
   cameraBoundingBox.setFromCenterAndSize(
     camera.position,
@@ -156,12 +153,14 @@ function updateCameraBoundingBox() {
   );
 }
 
+// Function to update bounding boxes of objects
 function updateBoundingBoxes() {
   for (var i = 0; i < pool.length; i++) {
     pool[i].boundingBox.setFromObject(pool[i].mesh);
   }
 }
 
+// Function to check for collisions
 function checkCollisions() {
   updateBoundingBoxes();
   updateCameraBoundingBox();
@@ -176,10 +175,7 @@ function checkCollisions() {
   }
 }
 
-let hitCounter = 0;
-let coolDown = false;
-let endGameCounter = 0; // Prevents modal from resetting as impacts happen after death
-
+// Function to handle collision logic
 function handleCollision() {
   if (coolDown) {
     return;
@@ -187,17 +183,19 @@ function handleCollision() {
 
   hitCounter++;
 
-  const originalMoveSpeed = 0.5;
-  moveSpeed = -Math.abs(moveSpeed); // Reverse the moveSpeed
+  const originalMoveSpeed = moveSpeed;
+  controls.movementSpeed = -Math.abs(moveSpeed); // Reverse the moveSpeed
 
+  // Reverse immunity - no collisions in this time period
   coolDown = true;
   setTimeout(() => {
-    moveSpeed = originalMoveSpeed;
+    controls.movementSpeed = originalMoveSpeed;
     coolDown = false;
   }, 500);
 
+  // Check if 3 hits and if endgame is not currently running
   if (hitCounter >= 3 && endGameCounter < 1) {
-    endGame(); // Call the endGame function when 3 hits are reached
+    endGame();
     endGameCounter++;
   }
 }
@@ -229,6 +227,7 @@ const quotesArray = [
   "This ship will self-destruct in twenty seconds. This is your last chance to push the cancellation button.",
   "I hate it when I get my Schwartz twisted.",
   "Well, boys, it's a very lovely ship. I think you should go down with it.",
+  "All personnel proceed to escape pods. Close down the circus. Evacuate the zoo. The self-destruct mechanism has been activated. Abandon ship.",
   "Ooh, I *hate* these movies!",
   "You are *ugly* when you're angry.",
   "Abandon ship! Abandon ship! Women and mawgs first!",
@@ -254,20 +253,20 @@ function getRandomGif() {
   return gifArray[randomIndex];
 }
 
+// Function to handle end game logic
 function endGame() {
-  // Unlock controls to allow mouse movement
-  controls.unlock();
-
+  moveSpeed = 0;
+  controls.movementSpeed = moveSpeed;
   // Hide the game canvas and show the game-over screen
-  document.getElementById("myCanvas").style.display = "flex";
+  document.getElementById("canvas").style.display = "flex";
   document.getElementById("game-over-screen").style.display = "flex";
 
   // Set a random quote in the paragraph
-  const randomQuote = getRandomQuote();
+  var randomQuote = getRandomQuote();
   document.getElementById("random-quote").textContent = randomQuote;
 
   // Set a random GIF on the death screen
-  const randomGif = getRandomGif();
+  var randomGif = getRandomGif();
   document.getElementById("death-gif").src = randomGif;
 }
 
@@ -283,41 +282,65 @@ document
     restartGame();
   });
 
+// Animation loop
 function animate() {
-  // Clear renderer for multiple viewports (since autoClear is false)
-  renderer.clear();
   requestAnimationFrame(animate);
 
-  delta = clock.getDelta();
+  // Calculate delta time for smooth movement
+  const delta = clock.getDelta();
 
   // Update all objects in the scene
   for (var i = 0; i < pool.length; i++) {
     pool[i].update(delta);
   }
 
-  if (controls.isLocked) {
-    const direction = new THREE.Vector3();
-    camera.getWorldDirection(direction);
-    camera.position.addScaledVector(direction, moveSpeed);
-  }
+  // Update controls
+  controls.update(delta);
 
-  checkCollisions(); // Check for collisions after moving the camera
+  checkCollisions();
 
+  // Render the main view (full-screen) with emissions
+  composer.render()
+
+  // Render the rear-view mirror (smaller view at the top center)
   renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
-  renderer.render(scene, camera); // Render the main scene first
+  renderer.setScissor(
+    window.innerWidth * 0.685,
+    window.innerHeight * 0.667,
+    window.innerWidth * 0.122,
+    window.innerHeight * 0.072
+  );
+  renderer.setScissorTest(true);
 
-  renderer.setViewport(10, 10, 50, 50); // Position and size of the second view (adjust as needed)
-  renderer.render(scene, rearCamera); // Render the rear camera on top
+  renderer.render(scene, rearCamera);
+
+  // Disable scissor test after rendering rear view
+  renderer.setScissorTest(false);
+
+  // Render the rear-view left mirror (smaller view at the top center)
+  renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+  renderer.setScissor(
+    window.innerWidth * 0.371,
+    window.innerHeight * 0.291,
+    window.innerWidth * 0.03,
+    window.innerHeight * 0.155
+  );
+  renderer.setScissorTest(true);
+
+  renderer.render(scene, rearCamera);
+
+  // Disable scissor test after rendering rear view
+  renderer.setScissorTest(false);
 }
 
+// Handle window resize
 window.addEventListener("resize", function () {
+  // Update camera aspect ratio
   camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
 
-  rearCamera.aspect = window.innerWidth / window.innerHeight;
-  rearCamera.updateProjectionMatrix();
-
+  // Update renderer size
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+// Start animation
 animate();
